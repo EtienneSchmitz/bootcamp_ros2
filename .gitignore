@@ -1,0 +1,12 @@
+# Artefacts de build colcon (jamais commités)
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.pyc
+
+# Editeurs
+.vscode/
+*.swp

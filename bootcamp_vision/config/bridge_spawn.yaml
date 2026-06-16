@@ -1,0 +1,15 @@
+# Pont de SERVICES ros_gz_bridge pour spawn / suppression d'objets dans le monde
+# Gazebo Ionic "vision_table". Expose cote ROS 2 :
+#   /world/vision_table/create  (ros_gz_interfaces/srv/SpawnEntity)  -> gz EntityFactory
+#   /world/vision_table/remove  (ros_gz_interfaces/srv/DeleteEntity) -> gz Entity
+# Utilise par scripts/spawn_object.py. Si le monde change de nom, adapter ici.
+
+- service_name: "/world/vision_table/create"
+  ros_type_name: "ros_gz_interfaces/srv/SpawnEntity"
+  gz_req_type_name: "gz.msgs.EntityFactory"
+  gz_rep_type_name: "gz.msgs.Boolean"
+
+- service_name: "/world/vision_table/remove"
+  ros_type_name: "ros_gz_interfaces/srv/DeleteEntity"
+  gz_req_type_name: "gz.msgs.Entity"
+  gz_rep_type_name: "gz.msgs.Boolean"

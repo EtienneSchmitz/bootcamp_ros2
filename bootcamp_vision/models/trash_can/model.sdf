@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!-- Dechet "canette" : cylindre gris metal Ø0.033 x 0.09, ~0.02 kg. Classe metal. -->
+<sdf version="1.10">
+  <model name="trash_can">
+    <link name="link">
+      <inertial>
+        <mass>0.02</mass>
+        <inertia><ixx>1.5e-5</ixx><iyy>1.5e-5</iyy><izz>2.7e-6</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry><cylinder><radius>0.0165</radius><length>0.09</length></cylinder></geometry>
+      </collision>
+      <visual name="visual">
+        <geometry><cylinder><radius>0.0165</radius><length>0.09</length></cylinder></geometry>
+        <material>
+          <ambient>0.55 0.57 0.60 1</ambient>
+          <diffuse>0.72 0.74 0.77 1</diffuse>
+          <specular>0.6 0.6 0.6 1</specular>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

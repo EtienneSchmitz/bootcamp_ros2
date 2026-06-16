@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!-- Forme TP01 : cube BLEU sature, 4 cm, ~0.02 kg. -->
+<sdf version="1.10">
+  <model name="shape_cube">
+    <link name="link">
+      <inertial>
+        <mass>0.02</mass>
+        <inertia><ixx>5.33e-6</ixx><iyy>5.33e-6</iyy><izz>5.33e-6</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry><box><size>0.04 0.04 0.04</size></box></geometry>
+      </collision>
+      <visual name="visual">
+        <geometry><box><size>0.04 0.04 0.04</size></box></geometry>
+        <material>
+          <ambient>0.05 0.1 0.8 1</ambient>
+          <diffuse>0.05 0.15 0.95 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

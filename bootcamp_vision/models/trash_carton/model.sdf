@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!-- Dechet "carton" : boite brune 0.05 x 0.05 x 0.06, ~0.02 kg. Classe paper. -->
+<sdf version="1.10">
+  <model name="trash_carton">
+    <link name="link">
+      <inertial>
+        <mass>0.02</mass>
+        <inertia><ixx>1.0e-5</ixx><iyy>1.0e-5</iyy><izz>8.3e-6</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry><box><size>0.05 0.05 0.06</size></box></geometry>
+      </collision>
+      <visual name="visual">
+        <geometry><box><size>0.05 0.05 0.06</size></box></geometry>
+        <material>
+          <ambient>0.50 0.36 0.20 1</ambient>
+          <diffuse>0.62 0.45 0.26 1</diffuse>
+          <specular>0.04 0.04 0.04 1</specular>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

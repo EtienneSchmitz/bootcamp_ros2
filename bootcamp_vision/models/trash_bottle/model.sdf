@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!-- Dechet "bouteille plastique" : corps cylindre Ø0.03 x 0.09 + col Ø0.014 x 0.03,
+     bleu translucide, ~0.025 kg. Classe plastic (tri J5) ET cible YOLO 'bottle' (COCO 39).
+
+     ===== VARIANTE YOLO REALISTE (Fuel) =====
+     Pour une meilleure reconnaissance YOLO, remplacer les <visual>/<collision> par un
+     mesh realiste depuis Gazebo Fuel (telechargement reseau au 1er lancement), ex. :
+       <include>
+         <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Bottle</uri>
+       </include>
+     ou un <mesh><uri>...</uri></mesh>. La primitive ci-dessous reste le defaut leger. -->
+<sdf version="1.10">
+  <model name="trash_bottle">
+    <link name="link">
+      <inertial>
+        <mass>0.025</mass>
+        <inertia><ixx>2.0e-5</ixx><iyy>2.0e-5</iyy><izz>2.8e-6</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia>
+      </inertial>
+      <collision name="body_col">
+        <geometry><cylinder><radius>0.015</radius><length>0.09</length></cylinder></geometry>
+      </collision>
+      <visual name="body_vis">
+        <geometry><cylinder><radius>0.015</radius><length>0.09</length></cylinder></geometry>
+        <material>
+          <ambient>0.10 0.30 0.55 0.6</ambient>
+          <diffuse>0.15 0.50 0.80 0.6</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <transparency>0.3</transparency>
+        </material>
+      </visual>
+      <collision name="neck_col">
+        <pose>0 0 0.06 0 0 0</pose>
+        <geometry><cylinder><radius>0.007</radius><length>0.03</length></cylinder></geometry>
+      </collision>
+      <visual name="neck_vis">
+        <pose>0 0 0.06 0 0 0</pose>
+        <geometry><cylinder><radius>0.007</radius><length>0.03</length></cylinder></geometry>
+        <material>
+          <ambient>0.10 0.30 0.55 0.6</ambient>
+          <diffuse>0.15 0.50 0.80 0.6</diffuse>
+          <transparency>0.3</transparency>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!-- Colis ArUco (TP02) : boite carton 6 cm + marqueur DICT_4X4_50 sur le dessus.
+     Marqueur imprime de 0.05 m de cote (tuile 0.05 x 0.05), centre sur la face
+     superieure (z = 0.03 + 0.0005). URI texture relative => GZ_SIM_RESOURCE_PATH
+     doit contenir .../bootcamp_vision/models. spawn_object.py remplace aruco_0.png
+     par aruco_<id>.png. Taille marqueur a renseigner dans solvePnP : 0.05 m. -->
+<sdf version="1.10">
+  <model name="aruco_parcel">
+    <link name="link">
+      <inertial>
+        <mass>0.05</mass>
+        <inertia><ixx>3.0e-5</ixx><iyy>3.0e-5</iyy><izz>3.0e-5</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry><box><size>0.06 0.06 0.06</size></box></geometry>
+      </collision>
+      <!-- Corps carton brun -->
+      <visual name="body">
+        <geometry><box><size>0.06 0.06 0.06</size></box></geometry>
+        <material>
+          <ambient>0.55 0.42 0.26 1</ambient>
+          <diffuse>0.66 0.50 0.32 1</diffuse>
+          <specular>0.03 0.03 0.03 1</specular>
+        </material>
+      </visual>
+      <!-- Tuile marqueur 0.05 x 0.05 sur le dessus (z = 0.03 + 0.0005) -->
+      <visual name="marker">
+        <pose>0 0 0.0305 0 0 0</pose>
+        <geometry><box><size>0.05 0.05 0.001</size></box></geometry>
+        <material>
+          <ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse>
+          <pbr><metal>
+            <albedo_map>aruco_parcel/materials/textures/aruco_0.png</albedo_map>
+            <metalness>0.0</metalness><roughness>1.0</roughness>
+          </metal></pbr>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

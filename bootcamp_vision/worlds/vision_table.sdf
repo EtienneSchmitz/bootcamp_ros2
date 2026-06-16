@@ -1,0 +1,220 @@
+<?xml version="1.0"?>
+<!-- ============================================================================
+     Monde "vision" du Jour 4 (perception) — Gazebo Ionic (gz-sim 9), SDF 1.10.
+
+     But : une CAMERA FIXE observe une TABLE sur laquelle on pose un objet, et
+     publie son flux (sensor_msgs/Image + CameraInfo) cote ROS 2. AUCUN bras /
+     base : la manipulation est traitee au Jour 3/5.
+
+     Frames : world -> table_link -> camera_link -> camera_optical_frame.
+     Les TF sont publiees par vision_world.launch.py (static_transform_publisher),
+     car il n'y a pas de robot_state_publisher ici. Voir README pour la transform
+     table<->camera et les intrinseques.
+
+     Camera (defaut) : VUE DU DESSUS (axe optique vertical) a 1.00 m au-dessus du
+     plateau (plateau a z=0.40 => camera a z=1.40). 1280x720, R8G8B8, ~30 Hz.
+     => la back-projection d'un pixel sur le plan de la table (z=0.40) est simple.
+     Variantes "45 degres" et "rgbd_camera" fournies en COMMENTAIRE plus bas.
+     ============================================================================ -->
+<sdf version="1.10">
+  <world name="vision_table">
+
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin filename="gz-sim-physics-system"
+            name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system"
+            name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system"
+            name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system"
+            name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <!-- Eclairage pense pour la VISION : ambiant eleve + fond neutre => ombres
+         douces, couleurs stables pour le seuillage HSV. -->
+    <scene>
+      <ambient>0.6 0.6 0.6 1</ambient>
+      <background>0.85 0.85 0.85 1</background>
+      <grid>false</grid>
+      <shadows>true</shadows>
+    </scene>
+
+    <!-- Soleil directionnel DOUX (peu speculaire, vertical) pour limiter les
+         reflets et les ombres dures sur les objets. -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.7 0.7 0.7 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <direction>-0.2 0.1 -1.0</direction>
+    </light>
+    <!-- Petite lumiere d'appoint (remplit les ombres cote oppose). -->
+    <light type="directional" name="fill">
+      <cast_shadows>false</cast_shadows>
+      <pose>0 0 8 0 0 0</pose>
+      <diffuse>0.35 0.35 0.35 1</diffuse>
+      <specular>0.0 0.0 0.0 1</specular>
+      <direction>0.4 -0.3 -1.0</direction>
+    </light>
+
+    <!-- ============================= Sol ================================== -->
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ============================ Table ================================
+         Plateau 0.8x0.8x0.04, dessus a z=0.40 (centre a 0.38) + 4 pieds.
+         'table_link' : repere logique au CENTRE DU PLATEAU (z=0.40). -->
+    <model name="vision_table">
+      <static>true</static>
+      <pose>0 0 0 0 0 0</pose>
+      <link name="table_link">
+        <collision name="top_col">
+          <pose>0 0 0.38 0 0 0</pose>
+          <geometry><box><size>0.8 0.8 0.04</size></box></geometry>
+        </collision>
+        <visual name="top_vis">
+          <pose>0 0 0.38 0 0 0</pose>
+          <geometry><box><size>0.8 0.8 0.04</size></box></geometry>
+          <material>
+            <ambient>0.50 0.40 0.30 1</ambient>
+            <diffuse>0.60 0.48 0.36 1</diffuse>
+            <specular>0.05 0.05 0.05 1</specular>
+          </material>
+        </visual>
+        <!-- 4 pieds 0.05x0.05x0.36, centre z=0.18, aux coins (+/-0.35) -->
+        <collision name="leg1_col"><pose>0.35 0.35 0.18 0 0 0</pose>
+          <geometry><box><size>0.05 0.05 0.36</size></box></geometry></collision>
+        <visual name="leg1_vis"><pose>0.35 0.35 0.18 0 0 0</pose>
+          <geometry><box><size>0.05 0.05 0.36</size></box></geometry>
+          <material><ambient>0.40 0.32 0.24 1</ambient><diffuse>0.50 0.40 0.30 1</diffuse></material></visual>
+        <collision name="leg2_col"><pose>-0.35 0.35 0.18 0 0 0</pose>
+          <geometry><box><size>0.05 0.05 0.36</size></box></geometry></collision>
+        <visual name="leg2_vis"><pose>-0.35 0.35 0.18 0 0 0</pose>
+          <geometry><box><size>0.05 0.05 0.36</size></box></geometry>
+          <material><ambient>0.40 0.32 0.24 1</ambient><diffuse>0.50 0.40 0.30 1</diffuse></material></visual>
+        <collision name="leg3_col"><pose>0.35 -0.35 0.18 0 0 0</pose>
+          <geometry><box><size>0.05 0.05 0.36</size></box></geometry></collision>
+        <visual name="leg3_vis"><pose>0.35 -0.35 0.18 0 0 0</pose>
+          <geometry><box><size>0.05 0.05 0.36</size></box></geometry>
+          <material><ambient>0.40 0.32 0.24 1</ambient><diffuse>0.50 0.40 0.30 1</diffuse></material></visual>
+        <collision name="leg4_col"><pose>-0.35 -0.35 0.18 0 0 0</pose>
+          <geometry><box><size>0.05 0.05 0.36</size></box></geometry></collision>
+        <visual name="leg4_vis"><pose>-0.35 -0.35 0.18 0 0 0</pose>
+          <geometry><box><size>0.05 0.05 0.36</size></box></geometry>
+          <material><ambient>0.40 0.32 0.24 1</ambient><diffuse>0.50 0.40 0.30 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- ====================== Camera fixe (VUE DU DESSUS) =================
+         Mat fin depuis le sol + capteur camera regardant -Z (vers la table).
+         Pose camera : (0,0,1.40), rpy=(0, +pi/2, 0) => l'axe optique +X du
+         capteur pointe vers -Z (le sol). 1280x720, hfov=1.2 rad.
+
+         INTRINSEQUES (cf. README) : fx = (W/2)/tan(hfov/2) = 640/tan(0.6)
+         ~= 935.3 ; fy = fx ; cx = 640 ; cy = 360. La camera_info est publiee
+         automatiquement par gz-sim (verifiable : ros2 topic echo /camera/camera_info).
+         gz_frame_id = camera_optical_frame (REP-103 : x droite, y bas, z avant). -->
+    <model name="camera_stand">
+      <static>true</static>
+      <pose>0 0 0 0 0 0</pose>
+      <link name="camera_link">
+        <!-- Mat (visuel uniquement, hors champ) : du sol jusqu'a la camera. -->
+        <visual name="mast">
+          <pose>0.45 0 0.70 0 0 0</pose>
+          <geometry><cylinder><radius>0.01</radius><length>1.40</length></cylinder></geometry>
+          <material><ambient>0.2 0.2 0.2 1</ambient><diffuse>0.2 0.2 0.2 1</diffuse></material>
+        </visual>
+        <!-- Bras horizontal reliant le mat a la camera au-dessus du centre. -->
+        <visual name="arm">
+          <pose>0.225 0 1.40 0 0 0</pose>
+          <geometry><box><size>0.45 0.02 0.02</size></box></geometry>
+          <material><ambient>0.2 0.2 0.2 1</ambient><diffuse>0.2 0.2 0.2 1</diffuse></material>
+        </visual>
+        <!-- Boitier camera -->
+        <visual name="body">
+          <pose>0 0 1.40 0 1.5708 0</pose>
+          <geometry><box><size>0.04 0.04 0.04</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient><diffuse>0.1 0.1 0.1 1</diffuse></material>
+        </visual>
+
+        <!-- ===== Capteur camera : VUE DU DESSUS (defaut) ===== -->
+        <sensor name="vision_camera" type="camera">
+          <pose>0 0 1.40 0 1.5708 0</pose>   <!-- regarde -Z -->
+          <topic>camera</topic>                <!-- gz publie /camera (image) + /camera_info -->
+          <frame_id>camera_optical_frame</frame_id>  <!-- header.frame_id de camera_info -->
+          <update_rate>30</update_rate>
+          <always_on>true</always_on>
+          <visualize>false</visualize>
+          <camera>
+            <horizontal_fov>1.2</horizontal_fov>
+            <image>
+              <width>1280</width>
+              <height>720</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.05</near>
+              <far>10.0</far>
+            </clip>
+          </camera>
+        </sensor>
+
+        <!-- ===================================================================
+             VARIANTE A — VUE INCLINEE 45 deg (decommenter, commenter celle du
+             dessus). Camera reculee en -X et inclinee pour viser le centre.
+             NB : la back-projection necessite alors la pose complete camera<->table.
+        <sensor name="vision_camera" type="camera">
+          <pose>-0.6 0 1.0 0 0.785398 0</pose>
+          <topic>camera</topic>
+          <gz_frame_id>camera_optical_frame</gz_frame_id>
+          <update_rate>30</update_rate>
+          <always_on>true</always_on>
+          <camera>
+            <horizontal_fov>1.2</horizontal_fov>
+            <image><width>1280</width><height>720</height><format>R8G8B8</format></image>
+            <clip><near>0.05</near><far>10.0</far></clip>
+            <optical_frame_id>camera_optical_frame</optical_frame_id>
+          </camera>
+        </sensor>
+        ==================================================================== -->
+
+        <!-- ===================================================================
+             VARIANTE B — RGBD (profondeur) : vraie pose 3D sans plan connu.
+             Publie camera/image, camera/depth_image, camera/points, camera/camera_info.
+        <sensor name="vision_camera" type="rgbd_camera">
+          <pose>0 0 1.40 0 1.5708 0</pose>
+          <topic>camera</topic>
+          <gz_frame_id>camera_optical_frame</gz_frame_id>
+          <update_rate>30</update_rate>
+          <always_on>true</always_on>
+          <camera>
+            <horizontal_fov>1.2</horizontal_fov>
+            <image><width>1280</width><height>720</height><format>R8G8B8</format></image>
+            <clip><near>0.05</near><far>10.0</far></clip>
+            <optical_frame_id>camera_optical_frame</optical_frame_id>
+          </camera>
+        </sensor>
+        ==================================================================== -->
+      </link>
+    </model>
+
+  </world>
+</sdf>

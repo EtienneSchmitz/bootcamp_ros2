@@ -1,0 +1,30 @@
+# Pont ros_gz_bridge : camera fixe du monde vision_table -> ROS 2.
+# gz publie /camera (image) et /camera_info (le capteur a <topic>camera</topic>).
+# On expose cote ROS les noms attendus par les TP : /camera/image_raw + /camera/camera_info.
+# Pour changer les noms ROS : editer ros_topic_name ci-dessous.
+
+- ros_topic_name: "/camera/image_raw"
+  gz_topic_name: "/camera"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/camera/camera_info"
+  gz_topic_name: "/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+# --- VARIANTE RGBD (si capteur rgbd_camera active dans le monde) : decommenter ---
+# Avec un capteur rgbd_camera <topic>camera</topic>, gz publie /camera/image,
+# /camera/depth_image, /camera/points, /camera/camera_info. Adapter alors gz_topic_name.
+# - ros_topic_name: "/camera/depth/image_raw"
+#   gz_topic_name: "/camera/depth_image"
+#   ros_type_name: "sensor_msgs/msg/Image"
+#   gz_type_name: "gz.msgs.Image"
+#   direction: GZ_TO_ROS
+# - ros_topic_name: "/camera/points"
+#   gz_topic_name: "/camera/points"
+#   ros_type_name: "sensor_msgs/msg/PointCloud2"
+#   gz_type_name: "gz.msgs.PointCloudPacked"
+#   direction: GZ_TO_ROS
