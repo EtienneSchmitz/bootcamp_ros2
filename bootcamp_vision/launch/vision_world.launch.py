@@ -63,7 +63,7 @@ def generate_launch_description():
         output='screen',
     )
 
-    # TF statiques : world -> table_link (plateau a z=0.40) -> camera_link (z=1.40)
+    # TF statiques : world -> table_link (plateau a z=0.40) -> camera_link (z=0.95)
     # -> camera_optical_frame (REP-103, vue du dessus : rotation pi autour de X =>
     # optique x=+X, y=-Y, z=-Z). Cf. README pour la back-projection.
     tf_table = Node(
@@ -73,7 +73,7 @@ def generate_launch_description():
     tf_camera = Node(
         package='tf2_ros', executable='static_transform_publisher', name='tf_camera',
         arguments=['--frame-id', 'world', '--child-frame-id', 'camera_link',
-                   '--z', '1.40'])
+                   '--z', '0.95'])
     tf_optical = Node(
         package='tf2_ros', executable='static_transform_publisher', name='tf_optical',
         arguments=['--frame-id', 'camera_link', '--child-frame-id', 'camera_optical_frame',

@@ -11,8 +11,10 @@
      car il n'y a pas de robot_state_publisher ici. Voir README pour la transform
      table<->camera et les intrinseques.
 
-     Camera (defaut) : VUE DU DESSUS (axe optique vertical) a 1.00 m au-dessus du
-     plateau (plateau a z=0.40 => camera a z=1.40). 1280x720, R8G8B8, ~30 Hz.
+     Camera (defaut) : VUE DU DESSUS (axe optique vertical) a 0.55 m au-dessus du
+     plateau (plateau a z=0.40 => camera a z=0.95). 1280x720, R8G8B8, ~30 Hz.
+     Distance choisie pour rapprocher l'echelle apparente de la camera eye-in-hand
+     du SO-101 (Jour 5) tout en gardant plusieurs objets dans le cadre.
      => la back-projection d'un pixel sur le plan de la table (z=0.40) est simple.
      Variantes "45 degres" et "rgbd_camera" fournies en COMMENTAIRE plus bas.
      ============================================================================ -->
@@ -125,39 +127,41 @@
 
     <!-- ====================== Camera fixe (VUE DU DESSUS) =================
          Mat fin depuis le sol + capteur camera regardant -Z (vers la table).
-         Pose camera : (0,0,1.40), rpy=(0, +pi/2, 0) => l'axe optique +X du
+         Pose camera : (0,0,0.95), rpy=(0, +pi/2, 0) => l'axe optique +X du
          capteur pointe vers -Z (le sol). 1280x720, hfov=1.2 rad.
+         Hauteur camera->plateau : h = 0.95 - 0.40 = 0.55 m (un marqueur ArUco de 5 cm
+         fait ~85 px => detection robuste). Cf. CAM_Z dans capture_dataset.py.
 
          INTRINSEQUES (cf. README) : fx = (W/2)/tan(hfov/2) = 640/tan(0.6)
-         ~= 935.3 ; fy = fx ; cx = 640 ; cy = 360. La camera_info est publiee
+         ~= 935.5 ; fy = fx ; cx = 640 ; cy = 360. La camera_info est publiee
          automatiquement par gz-sim (verifiable : ros2 topic echo /camera/camera_info).
-         gz_frame_id = camera_optical_frame (REP-103 : x droite, y bas, z avant). -->
+         frame_id = camera_optical_frame (REP-103 : x droite, y bas, z avant). -->
     <model name="camera_stand">
       <static>true</static>
       <pose>0 0 0 0 0 0</pose>
       <link name="camera_link">
-        <!-- Mat (visuel uniquement, hors champ) : du sol jusqu'a la camera. -->
+        <!-- Mat (visuel uniquement, hors champ) : du sol jusqu'a la camera (z=0.95). -->
         <visual name="mast">
-          <pose>0.45 0 0.70 0 0 0</pose>
-          <geometry><cylinder><radius>0.01</radius><length>1.40</length></cylinder></geometry>
+          <pose>0.45 0 0.475 0 0 0</pose>
+          <geometry><cylinder><radius>0.01</radius><length>0.95</length></cylinder></geometry>
           <material><ambient>0.2 0.2 0.2 1</ambient><diffuse>0.2 0.2 0.2 1</diffuse></material>
         </visual>
         <!-- Bras horizontal reliant le mat a la camera au-dessus du centre. -->
         <visual name="arm">
-          <pose>0.225 0 1.40 0 0 0</pose>
+          <pose>0.225 0 0.95 0 0 0</pose>
           <geometry><box><size>0.45 0.02 0.02</size></box></geometry>
           <material><ambient>0.2 0.2 0.2 1</ambient><diffuse>0.2 0.2 0.2 1</diffuse></material>
         </visual>
         <!-- Boitier camera -->
         <visual name="body">
-          <pose>0 0 1.40 0 1.5708 0</pose>
+          <pose>0 0 0.95 0 1.5708 0</pose>
           <geometry><box><size>0.04 0.04 0.04</size></box></geometry>
           <material><ambient>0.1 0.1 0.1 1</ambient><diffuse>0.1 0.1 0.1 1</diffuse></material>
         </visual>
 
         <!-- ===== Capteur camera : VUE DU DESSUS (defaut) ===== -->
         <sensor name="vision_camera" type="camera">
-          <pose>0 0 1.40 0 1.5708 0</pose>   <!-- regarde -Z -->
+          <pose>0 0 0.95 0 1.5708 0</pose>   <!-- regarde -Z -->
           <topic>camera</topic>                <!-- gz publie /camera (image) + /camera_info -->
           <frame_id>camera_optical_frame</frame_id>  <!-- header.frame_id de camera_info -->
           <update_rate>30</update_rate>
@@ -200,9 +204,9 @@
              VARIANTE B — RGBD (profondeur) : vraie pose 3D sans plan connu.
              Publie camera/image, camera/depth_image, camera/points, camera/camera_info.
         <sensor name="vision_camera" type="rgbd_camera">
-          <pose>0 0 1.40 0 1.5708 0</pose>
+          <pose>0 0 0.95 0 1.5708 0</pose>
           <topic>camera</topic>
-          <gz_frame_id>camera_optical_frame</gz_frame_id>
+          <frame_id>camera_optical_frame</frame_id>
           <update_rate>30</update_rate>
           <always_on>true</always_on>
           <camera>
